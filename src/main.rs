@@ -48,7 +48,7 @@ fn sort(sl: &mut [usize]){
         if sl[ii-1] <= piv{
             is += 1;
             if is != ii{
-                swap(ii-1, is-1, sl)
+                sl.swap(ii, is);//ap(ii-1, is-1, sl)
             }
         }
         i += 1;
