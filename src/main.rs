@@ -16,46 +16,42 @@ fn main() {
         v.push(rand::thread_rng().gen_range(0..=20));
         i += 1;
     }   
-    print_sl(v.as_slice());
-    sort(v.as_mut_slice());
-    print_sl(v.as_slice());
+    print_v(&v);
+    let len = v.len();
+    sort(&mut v, 0, len-1);
+    print_v(&v);
 }
 
-fn swap(a: usize, b: usize, sl: &mut [usize]){
-    let buff = sl[a];
-    sl[a] = sl[b];
-    sl[b] = buff;
-}
-
-fn print_sl(v: & [usize]){
+fn print_v(v: & Vec<usize>){
     for n in v{
         print!("{}, ", n)
     }
     println!();
 }
 
-fn sort(sl: &mut [usize]){
-    let sl_len = sl.len();
-    if sl_len < 2 {return}
+fn sort(v: &mut Vec<usize>,start: usize, end: usize){
+    let v_len = end - start;
 
     let mut ii = 0 as usize;
     let mut is = 0 as usize;
-    let piv = sl[sl_len-1];
+    let piv = v[v_len];
 
     let mut i = 0 as usize;
-    while i<sl_len{
+    while i<= v_len{
         ii += 1;
-        if sl[ii-1] <= piv{
+        if v[ii-1] <= piv{
             is += 1;
             if is != ii{
-                sl.swap(ii, is);//ap(ii-1, is-1, sl)
+                v.swap(ii-1, is-1);//ap(ii-1, is-1, v)
             }
         }
         i += 1;
     }
-    print_sl(sl);
-
-    let sl_r = &mut sl[ii+1..];
-    sort(&mut sl[..is-1]);
-    sort(sl_r);
+    print_v(&v);
+    let l_start = start;
+    let l_end = is-2;
+    let r_start = is;
+    let r_end = end;
+    if l_start != l_end {sort(v, start, is-2);}
+    if r_start != end {sort(v, r_start, r_end);}
 }
