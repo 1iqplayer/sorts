@@ -16,42 +16,33 @@ fn main() {
         v.push(rand::thread_rng().gen_range(0..=20));
         i += 1;
     }   
-    print_v(&v);
-    let len = v.len();
-    sort(&mut v, 0, len-1);
-    print_v(&v);
+    println!("Before: {:?}", &v);
+    quicksort(v.as_mut_slice());
+    println!("after:  {:?}", &v);
+}
+fn quicksort<T: Ord + std::fmt::Debug>(sl: &mut [T]){
+    let sl_len = sl.len();
+    _quicksort(sl, 0, sl_len-1)
 }
 
-fn print_v(v: & Vec<usize>){
-    for n in v{
-        print!("{}, ", n)
-    }
-    println!();
+fn _quicksort<T: Ord + std::fmt::Debug>(sl: &mut [T], low: usize, high: usize){
+    let p = partition(sl, low, high);
+    if low != p {_quicksort(sl, low, p-1);}
+    if p != high {_quicksort(sl, p+1, high);}
+
 }
 
-fn sort(v: &mut Vec<usize>,start: usize, end: usize){
-    let v_len = end - start;
-
-    let mut ii = 0 as usize;
-    let mut is = 0 as usize;
-    let piv = v[v_len];
-
-    let mut i = 0 as usize;
-    while i<= v_len{
+fn partition<T: Ord>(sl: &mut [T], low: usize, high: usize) -> usize{
+    let mut ii = low;
+    let mut is = low;
+    for _i in low..=high{
         ii += 1;
-        if v[ii-1] <= piv{
+        if sl[ii-1] <= sl[high]{
             is += 1;
-            if is != ii{
-                v.swap(ii-1, is-1);//ap(ii-1, is-1, v)
+            if ii != is{
+                sl.swap(ii-1, is-1)
             }
         }
-        i += 1;
     }
-    print_v(&v);
-    let l_start = start;
-    let l_end = is-2;
-    let r_start = is;
-    let r_end = end;
-    if l_start != l_end {sort(v, start, is-2);}
-    if r_start != end {sort(v, r_start, r_end);}
+    is-1
 }
