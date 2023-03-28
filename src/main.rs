@@ -16,20 +16,18 @@ fn main() {
         dec: !inc
     };
 
-    sort.arr_gen();
-    //sort.sort_quick();
-    sort.sort_bubble();
-    //sort.sort_bubblev2();
+    
 }
 
 impl sortx {
-    fn sort_quick(&self){
+    fn sort_quick(&self) -> bool{
         let mut cpy = self.arr.to_vec();
         self._quicksort(&mut cpy, 0, self.arr_size-1);
 
-        if self.dec  {self.dec_test(&mut cpy);}
-        else    {self.inc_test(&mut cpy);}
-        println!("{:?}", cpy);
+        let mut result: bool;
+        if self.dec  {result = self.dec_test(&mut cpy)}
+        else {result = self.inc_test(&mut cpy);}
+        result
     }
 
     fn _quicksort(&self, v: &mut Vec<usize>, low: usize, high: usize){
@@ -66,15 +64,15 @@ impl sortx {
         is-1
     }
 
-    fn sort_bubble(&self){
+    fn sort_bubble(&self) -> bool{
         let mut i = self.arr_size-1;
         let mut cpy = self.arr.to_vec();
 
         if self.dec{
-            while i > 1{
+            while i > 0{
                 let mut swap = 0;
                 let mut seq = true;
-                for j in 1..=i{
+                for j in 0..=i{
                     if cpy[j] < cpy[swap]{
                         swap = j;
                     }else{seq = false}
@@ -84,10 +82,10 @@ impl sortx {
                 i -= 1;
             }
         }else{
-            while i > 1{
+            while i > 0{
                 let mut swap = 0;
                 let mut seq = true;
-                for j in 1..=i{
+                for j in 0..=i{
                     if cpy[j] > cpy[swap]{
                         swap = j;
                     }else{seq = false}
@@ -98,12 +96,14 @@ impl sortx {
             }
         }
         
-        println!("{:?}", cpy);
-        if self.dec  {self.dec_test(&mut cpy);}
-        else    {self.inc_test(&mut cpy);}
+        println!("{:#?}", cpy);
+        let mut result: bool;
+        if self.dec  {result = self.dec_test(&mut cpy)}
+        else {result = self.inc_test(&mut cpy);}
+        result
     }
 
-    fn sort_bubblev2(&self){
+    fn sort_bubblev2(&self)->bool{
         let n = self.arr_size;
         let mut cpy = self.arr.to_vec();
 
@@ -131,9 +131,10 @@ impl sortx {
             }
         }
         
-        println!("{:?}", cpy);
-        if self.dec  {self.dec_test(&cpy);}
-        else    {self.inc_test(&cpy);}
+        let mut result: bool;
+        if self.dec  {result = self.dec_test(&mut cpy)}
+        else {result = self.inc_test(&mut cpy);}
+        result
     }
 
     fn dec_test(&self, v: & Vec<usize>)->bool{
@@ -160,8 +161,9 @@ impl sortx {
 
     fn arr_gen(&mut self){
         let mut gen = rand::thread_rng();
+        self.arr.clear();
         for _ in 0..self.arr_size{
-            &self.arr.push(gen.gen_range(0..=self.arr_range));
+            self.arr.push(gen.gen_range(0..=self.arr_range));
         }
     }
 }
@@ -181,4 +183,31 @@ fn parse_int(msg: &str)->usize{
         .expect("failed to read from input!");
     let num: usize = buff.trim().parse().expect("invalid number!");
     num
+}
+
+#[cfg(test)]
+mod tests {
+    use rand::Rng;
+
+    use crate::sortx;
+
+    #[test]
+    fn test_bubblev1(){
+        let mut n = 100;
+
+        let mut sort = sortx{
+            arr_size: 100,
+            arr_range: 1000000,
+            arr: Vec::new(),
+            dec: false
+        };
+
+        while n>0{
+            println!("{n}");
+            n -= 1;
+            sort.arr_size = rand::thread_rng().gen_range(100..20000);
+            sort.arr_gen();
+            assert_eq!(sort.sort_quick(), true);
+        }
+    }
 }
