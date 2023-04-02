@@ -1,5 +1,5 @@
 use std::io;
-use std::vec;
+//use std::vec;
 use rand::Rng;
 use std::time;
 
@@ -15,6 +15,8 @@ fn main() {
         arr: Vec::new(),
         dec: !inc
     };
+    sort.arr_gen();
+    sort.sort_bucket();
 
     
 }
@@ -24,10 +26,7 @@ impl sortx {
         let mut cpy = self.arr.to_vec();
         self._quicksort(&mut cpy, 0, self.arr_size-1);
 
-        let mut result: bool;
-        if self.dec  {result = self.dec_test(&mut cpy)}
-        else {result = self.inc_test(&mut cpy);}
-        result
+        self.test(&cpy)
     }
 
     fn _quicksort(&self, v: &mut Vec<usize>, low: usize, high: usize){
@@ -96,11 +95,7 @@ impl sortx {
             }
         }
         
-        println!("{:#?}", cpy);
-        let mut result: bool;
-        if self.dec  {result = self.dec_test(&mut cpy)}
-        else {result = self.inc_test(&mut cpy);}
-        result
+        self.test(&cpy)
     }
 
     fn sort_bubblev2(&self)->bool{
@@ -131,31 +126,90 @@ impl sortx {
             }
         }
         
-        let mut result: bool;
-        if self.dec  {result = self.dec_test(&mut cpy)}
-        else {result = self.inc_test(&mut cpy);}
-        result
+        self.test(&cpy)
     }
 
-    fn dec_test(&self, v: & Vec<usize>)->bool{
-        for i in 0..self.arr_size-1{
-            if v[i] < v[i+1] && v[i] != v[i+1] {
-                println!("!! array sorted incorrectly (decreasing) !!");
-                return false
+    fn sort_insert(&self)->bool{
+        let mut cpy = self.arr.to_vec();
+
+        if self.dec{
+            for i in 1..self.arr_size{
+                let mut j = i;
+                while j>0 && cpy[j-1]<cpy[j]{
+                    cpy.swap(j-1, j);
+                    j -= 1;
+                }
+            }
+        }else{
+            for i in 1..self.arr_size{
+                let mut j = i;
+                while j>0 && cpy[j-1]>cpy[j]{
+                    cpy.swap(j-1, j);
+                    j -= 1;
+                }
             }
         }
-        println!("array sorted correctly (decreasing)");
-        true
+        self.test(&cpy)
     }
 
-    fn inc_test(&self, v: & Vec<usize>)->bool{
-        for i in 0..self.arr_size-1{
-            if v[i] > v[i+1] && v[i] != v[i+1] { 
-                println!("!! array sorted incorrectly (increasing) [{}] !!", v[i]);
-                return false
+    fn sort_bucket(&self)->bool{
+        let mut cpy = self.arr.to_vec();
+        let n = 10;
+        let range = self.arr_range / n;
+
+        let mut v: Vec<Vec<usize>>   = vec![vec![]; n+1];
+
+        // Insert elements in buckets
+        for i in 0..self.arr_size{
+            let bi = cpy[i]/range;
+            v[bi].push(cpy[i]);
+        }
+
+        // Sort buckets
+
+        for i in 0..n+1{
+            if v[i].len()>1 {sortx::_insert(&mut v[i]);}
+        }
+
+        let mut count = 0;
+        for i in 0..n+1{
+            if v[i].len()>0 {
+                for j in 0..v[i].len(){
+                    cpy[count] = v[i][j];
+                    count += 1;
+                }
             }
         }
-        println!("array sorted correctly (increasing)");
+        println!("{:#?}", cpy);
+        self.test(&cpy)
+    }
+
+    fn _insert<T: Ord>(v: &mut Vec<T>){
+        for i in 1..v.len(){
+            let mut j = i;
+            while j>0 && v[j-1]>v[j]{
+                v.swap(j-1, j);
+                j -= 1;
+            }
+        }
+    }
+    fn test(&self, v: & Vec<usize>)->bool{
+        if self.dec{
+            for i in 0..self.arr_size-1{
+                if v[i] < v[i+1] && v[i] != v[i+1] {
+                    println!("!! array sorted incorrectly (decreasing) !!");
+                    return false
+                }
+            }
+        }else{
+            for i in 0..self.arr_size-1{
+                if v[i] > v[i+1] && v[i] != v[i+1] { 
+                    println!("!! array sorted incorrectly (increasing) [{}] !!", v[i]);
+                    return false
+                }
+            }
+        }
+        println!("--array sorted correctly--");
         true
     }
 
@@ -192,12 +246,12 @@ mod tests {
     use crate::sortx;
 
     #[test]
-    fn test_bubblev1(){
-        let mut n = 100;
+    fn test_bucket(){
+        let mut n = 10;
 
         let mut sort = sortx{
-            arr_size: 100,
-            arr_range: 1000000,
+            arr_size: 10,
+            arr_range: 20,
             arr: Vec::new(),
             dec: false
         };
@@ -205,9 +259,10 @@ mod tests {
         while n>0{
             println!("{n}");
             n -= 1;
-            sort.arr_size = rand::thread_rng().gen_range(100..20000);
+            sort.arr_size = rand::thread_rng().gen_range(1000..10000);
+            sort.arr_range = rand::thread_rng().gen_range(0..60000);
             sort.arr_gen();
-            assert_eq!(sort.sort_quick(), true);
+            assert_eq!(sort.sort_bucket(), true);
         }
     }
 }
